@@ -24,8 +24,26 @@ def validate_data(path_to_file: str, ge_context_path: str):
         batch_request=batch_request
     )
     
+   # ✅ ตรวจสอบผลลัพธ์
     if not result["success"]:
+        print("\n❌ Data validation failed!\n")
+
+        # ดึง validation result รายละเอียด
+        validation_results = result.list_validation_results()
+
+        for i, vr in enumerate(validation_results, 1):
+            print(f"--- Validation {i} ---")
+            print(f"Expectation Suite: {vr.expectation_suite_name}")
+            print(f"Success: {vr.success}")
+            for res in vr.results:
+                exp_type = res["expectation_config"]["expectation_type"]
+                success = res["success"]
+                column = res["expectation_config"]["kwargs"].get("column", "N/A")
+                print(f"• {exp_type} on column '{column}' → {'✅ PASS' if success else '❌ FAIL'}")
+
+            print("-----------------------\n")
+
         raise ValueError(f"Data validation failed for {path_to_file}")
-    
-    print(f"Validation passed for {path_to_file}")
+
+    print(f"✅ Validation passed for {path_to_file}")
     return result
