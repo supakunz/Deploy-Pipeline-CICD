@@ -23,19 +23,25 @@ def validate_data(path_to_file: str, ge_context_path: str):
         checkpoint_name="covid_checkpoint",
         batch_request=batch_request
     )
-    
-   # ✅ ตรวจสอบผลลัพธ์
+
+    # ✅ ตรวจสอบผลลัพธ์
     if not result["success"]:
         print("\n❌ Data validation failed!\n")
 
-        # ดึง validation result รายละเอียด
-        validation_results = result.list_validation_results()
+        # ✅ ใช้ dictionary access แทน .list_validation_results()
+        validation_results = result.get("run_results", {}).values()
 
         for i, vr in enumerate(validation_results, 1):
+            validation_result = vr.get("validation_result")
+            if not validation_result:
+                continue
+
+            suite_name = validation_result.meta.get("expectation_suite_name", "unknown_suite")
             print(f"--- Validation {i} ---")
-            print(f"Expectation Suite: {vr.expectation_suite_name}")
-            print(f"Success: {vr.success}")
-            for res in vr.results:
+            print(f"Expectation Suite: {suite_name}")
+            print(f"Overall Success: {validation_result.success}")
+
+            for res in validation_result.results:
                 exp_type = res["expectation_config"]["expectation_type"]
                 success = res["success"]
                 column = res["expectation_config"]["kwargs"].get("column", "N/A")
