@@ -34,23 +34,13 @@ jobs:
 
       # ขั้นตอนที่ห้าคือการรัน data QA tests โดยใช้ Great Expectations
       - name: Run QA tests (Great Expectations)
+        working-directory: ${{ github.workspace }}
         run: |
-          python - <<'EOF'
-          import great_expectations as ge
-          context = ge.get_context("include/gx")
-
-          batch_request = {
-              "datasource_name": "default_csv",
-              "data_connector_name": "default_runtime_data_connector_name",
-              "data_asset_name": "covid_data",
-              "runtime_parameters": {"path": "tests/mock_data/covid_sample.csv"},
-              "batch_identifiers": {"default_identifier_name": "covid_batch"},
-          }
-
-          checkpoint = context.get_checkpoint("covid_checkpoint")
-          results = checkpoint.run(batch_request=batch_request)
-          assert results["success"], "Data validation failed!"
-          EOF
+          echo "Listing files in include/gx directory:"
+          ls -R include/gx
+          
+          # รัน script Python แทนคำสั่ง CLI
+          python run_qa.py
 
 
 
