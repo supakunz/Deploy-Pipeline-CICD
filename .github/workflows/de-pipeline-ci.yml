@@ -30,7 +30,7 @@ jobs:
 
       # ขั้นตอนที่สี่คือการรัน unit tests
       - name: Run function tests
-        run: PYTHONPATH=$(pwd) pytest tests/ --maxfail=1 --disable-warnings -q
+        run: PYTHONPATH=$(pwd)/plugins pytest tests/ --maxfail=1 --disable-warnings -q
 
       # ขั้นตอนที่ห้าคือการรัน data QA tests โดยใช้ Great Expectations
       - name: Run QA tests (Great Expectations)
