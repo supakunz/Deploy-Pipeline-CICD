@@ -8,8 +8,8 @@ validations:
       datasource_name: covid_datasource
       data_connector_name: default_runtime_data_connector_name
       data_asset_name: covid_19_clean
-      runtime_parameters:
-        path: /opt/airflow/data/output/covid_19_clean.csv
+      # runtime_parameters:
+      #   path: /opt/airflow/data/output/covid_19_clean.csv
       batch_identifiers:
         default_identifier_name: covid_batch
     expectation_suite_name: covid_data_suite
