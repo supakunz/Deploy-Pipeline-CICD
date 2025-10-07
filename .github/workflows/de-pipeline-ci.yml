@@ -42,7 +42,6 @@ jobs:
           cd include/gx
           
           great_expectations checkpoint run covid_checkpoint \
-            --data-context-dir include/gx \
             --batch-request "{\"path\": \"tests/mock_data/covid_sample.csv\", \"datasource_name\": \"default_csv\"}"
 
 
