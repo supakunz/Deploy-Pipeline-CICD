@@ -2,7 +2,8 @@ import pandas as pd
 import os
 
 import sys
-sys.path.append("/opt/airflow/plugins")
+# sys.path.append("/opt/airflow/plugins")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from clean_date import cast_data_types, to_snake_case, normalize_datetime
 from handle_missing_value import handle_missing_value
