@@ -1,12 +1,13 @@
 import great_expectations as gx
 import sys
 import pandas as pd
-# ไม่ต้อง import RuntimeBatchRequest แล้ว
+from great_expectations.core.batch import RuntimeBatchRequest # ⬅️ นำกลับมาใช้
 
 # 1. ข้อมูลพื้นฐาน
 CONTEXT_DIR = "include/gx"
 MOCK_DATA_PATH = "tests/mock_data/covid_sample.csv"
-SUITE_NAME = "covid_data_suite" # ชื่อ Expectation Suite ที่ใช้
+SUITE_NAME = "covid_data_suite" 
+DATASOURCE_NAME = "covid_datasource" # ชื่อ Datasource ใน great_expectations.yml
 
 try:
     context = gx.get_context(context_root_dir=CONTEXT_DIR)
@@ -15,24 +16,39 @@ try:
     data_df = pd.read_csv(MOCK_DATA_PATH)
     print(f"Loaded data from {MOCK_DATA_PATH}. Data shape: {data_df.shape}")
 
-    # 🛑 2. สร้าง Validator Object จาก DataFrame โดยตรง
-    print(f"Loading Expectation Suite '{SUITE_NAME}' and creating Validator...")
+    # 🛑 2. สร้าง RuntimeBatchRequest ที่ส่งข้อมูล (DataFrame) เข้าไป
+    # นี่คือ Batch Request ที่ถูกต้องสำหรับ Runtime Data
+    runtime_batch_request = RuntimeBatchRequest(
+        datasource_name=DATASOURCE_NAME,
+        data_connector_name="default_runtime_data_connector_name",
+        data_asset_name="covid_19_clean",
+        runtime_parameters={"batch_data": data_df}, # ⬅️ ส่ง DataFrame ตรงนี้
+        batch_identifiers={"default_identifier_name": "covid_batch"}
+    )
     
-    validator = context.get_validator(
-        batch=data_df, # ส่ง DataFrame ที่โหลดแล้วเข้าไป
-        expectation_suite_name=SUITE_NAME # ระบุชื่อ Suite
+    # 🛑 3. สร้าง Batch Object (ไม่ใช่ Validator)
+    # ใช้ get_batch_list เพื่อให้ได้ Batch Objects ที่สมบูรณ์
+    batch_list = context.get_batch_list(batch_request=runtime_batch_request)
+
+    # 🛑 4. รัน Validation บน Batch List ที่ได้มา
+    print(f"Running Validation Suite '{SUITE_NAME}'...")
+
+    # ใช้ context.run_validation_operator (ง่ายกว่าการสร้าง Validator ด้วยมือ)
+    results = context.run_validation_operator(
+        "action_list_operator", 
+        assets_to_validate=[
+            {
+                "batch_list": batch_list,
+                "expectation_suite_name": SUITE_NAME
+            }
+        ]
     )
 
-    # 🛑 3. รัน Validation บน Validator Object
-    # เมธอด validate() บน Validator จะรันทุก Expectation ใน Suite
-    results = validator.validate() 
-
-    # 🛑 4. บันทึกผลลัพธ์และ Data Docs (Optional แต่แนะนำ)
-    # เราสามารถใช้ context.save_validation_result() เพื่อบันทึกผล
+    # 5. บันทึกผลลัพธ์และ Data Docs (Optional แต่แนะนำ)
     context.save_validation_result(results)
     context.build_data_docs()
 
-    if not results["success"]:
+    if not results.get("success", False):
         print("\n!!! Data Quality Check FAILED !!!")
         sys.exit(1)
     
