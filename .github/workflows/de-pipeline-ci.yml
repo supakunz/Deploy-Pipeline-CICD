@@ -36,10 +36,17 @@ jobs:
       - name: Run QA tests (Great Expectations)
         working-directory: ${{ github.workspace }}
         run: |
-          echo "Listing files in include/gx directory:"
-          ls -R include/gx
-          
-          python run_qa.py
+          python <<EOF
+          import sys
+          sys.path.append('plugins')
+          from validate_data import validate_data
+
+          validate_data(
+              path_to_file='tests/mock_data/covid_sample.csv',
+              ge_context_path='include/gx'
+          )
+          EOF
+
 
 
 

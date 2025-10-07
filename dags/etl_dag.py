@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from great_expectations_provider.operators.great_expectations import GreatExpectationsOperator
+# from great_expectations_provider.operators.great_expectations import GreatExpectationsOperator
 
 import sys
 sys.path.append("/opt/airflow/plugins")
@@ -10,6 +10,7 @@ from load_data import load_data
 from clean_date import run_pipeline
 from handle_missing_value import handle_missing_value
 from load_to_warehouse import load_to_warehouse
+from validate_data import validate_data
 
 default_args = {
     'owner': 'data-engineer',
@@ -63,11 +64,22 @@ handle_missing_value_task = PythonOperator(
     dag=dag,
 )
 
-validate_data_task = GreatExpectationsOperator(
-    task_id='validate_data_ge',
-    data_context_root_dir="/opt/airflow/include/gx", # ที่อยู่ของ Great Expectations context
-    checkpoint_name="covid_checkpoint", # ชื่อ checkpoint ที่สร้างใน Great Expectations
-    fail_task_on_validation_failure=True,
+# validate_data_task = GreatExpectationsOperator(
+#     task_id='validate_data_ge',
+#     data_context_root_dir="/opt/airflow/include/gx", # ที่อยู่ของ Great Expectations context
+#     checkpoint_name="covid_checkpoint", # ชื่อ checkpoint ที่สร้างใน Great Expectations
+#     fail_task_on_validation_failure=True,
+#     do_xcom_push=False,
+#     dag=dag,
+# )
+
+validate_data_task = PythonOperator(
+    task_id='validate_data',
+    python_callable=validate_data,
+    op_kwargs={
+        'path_to_file': '/opt/airflow/data/output/covid_19_clean.csv',
+        'ge_context_path': '/opt/airflow/include/gx'
+        },
     do_xcom_push=False,
     dag=dag,
 )
