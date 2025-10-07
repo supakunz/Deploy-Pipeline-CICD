@@ -34,9 +34,11 @@ jobs:
 
       # ขั้นตอนที่ห้าคือการรัน data QA tests โดยใช้ Great Expectations
       - name: Run QA tests (Great Expectations)
+        working-directory: ${{ github.workspace }}
         run: |
           great_expectations checkpoint run covid_checkpoint --v3-api \
-            --data-context-dir "$GITHUB_WORKSPACE/include/gx" \
-            --batch-request "{\"path\": \"$GITHUB_WORKSPACE/tests/mock_data/covid_sample.csv\", \"datasource_name\": \"default_csv\"}"
+            --data-context-dir include/gx \
+            --batch-request "{\"path\": \"tests/mock_data/covid_sample.csv\", \"datasource_name\": \"default_csv\"}"
+
 
 
