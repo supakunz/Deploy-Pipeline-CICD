@@ -38,6 +38,8 @@ jobs:
         run: |
           echo "Listing files in include/gx directory:"
           ls -R include/gx
+
+          cd include/gx
           
           great_expectations checkpoint run covid_checkpoint --v3-api \
             --data-context-dir include/gx \
