@@ -1,40 +1,42 @@
 import great_expectations as gx
 import sys
+import pandas as pd
+from great_expectations.core.batch import RuntimeBatchRequest
 
-# 1. ข้อมูลพื้นฐาน (อ้างอิงจาก Root Directory)
+# 1. ข้อมูลพื้นฐาน
 CONTEXT_DIR = "include/gx"
 CHECKPOINT_NAME = "covid_checkpoint"
 
-# 2. Path ของ Mock Data ที่ต้องการใช้ใน CI (Path อ้างอิงจาก Root ของ Repository)
+# 2. Path ของ Mock Data (Path อ้างอิงจาก Root ของ Repository)
 MOCK_DATA_PATH = "tests/mock_data/covid_sample.csv"
-
-# 3. กำหนด Batch Request ที่จะใช้ Override
-# ใช้โครงสร้างเดียวกันกับ Checkpoint YAML แต่ใส่ MOCK_DATA_PATH แทน
-batch_request_override = {
-    "datasource_name": "covid_datasource",
-    "data_connector_name": "default_runtime_data_connector_name",
-    "data_asset_name": "covid_19_clean",
-    "runtime_parameters": {
-        "path": MOCK_DATA_PATH # <--- Path ใหม่สำหรับ CI
-    },
-    "batch_identifiers": {
-        "default_identifier_name": "covid_batch"
-    }
-}
+SUITE_NAME = "covid_data_suite" # ชื่อ Suite ที่ใช้
 
 try:
-    # โหลด Data Context โดยระบุตำแหน่ง
+    # โหลด Data Context
     context = gx.get_context(context_root_dir=CONTEXT_DIR)
     
-    print(f"Running Checkpoint '{CHECKPOINT_NAME}' with Mock Data Path: {MOCK_DATA_PATH}")
+    # 🛑 1. โหลดไฟล์ Mock Data ด้วย Pandas
+    data_df = pd.read_csv(MOCK_DATA_PATH)
+    print(f"Loaded data from {MOCK_DATA_PATH}. Data shape: {data_df.shape}")
 
-    # 🛑 แก้ไขโดยใช้ 'validations' เพื่อบังคับ Override การตั้งค่าทั้งหมดใน YAML
+    # 🛑 2. สร้าง RuntimeBatchRequest จาก DataFrame ที่โหลดแล้ว
+    runtime_batch_request = RuntimeBatchRequest(
+        # ใช้ชื่อ Datasource ที่ถูกตั้งค่าใน great_expectations.yml
+        datasource_name="covid_datasource", 
+        data_connector_name="default_runtime_data_connector_name",
+        data_asset_name="covid_19_clean",  # ชื่อ Asset ใน Checkpoint
+        runtime_parameters={"batch_data": data_df}, # ส่ง DataFrame เข้าไปแทน Path
+        batch_identifiers={"default_identifier_name": "covid_batch"}
+    )
+    
+    # 🛑 3. รัน Checkpoint โดยใช้ RuntimeBatchRequest
+    print(f"Running Checkpoint '{CHECKPOINT_NAME}'...")
     results = context.run_checkpoint(
         checkpoint_name=CHECKPOINT_NAME,
         validations=[
             {
-                "batch_request": batch_request_override,
-                "expectation_suite_name": "covid_data_suite", # ต้องระบุชื่อ Expectation Suite
+                "batch_request": runtime_batch_request,
+                "expectation_suite_name": SUITE_NAME,
             }
         ]
     )
