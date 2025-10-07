@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-# from great_expectations_provider.operators.great_expectations import GreatExpectationsOperator
 
 import sys
 sys.path.append("/opt/airflow/plugins")
@@ -63,15 +62,6 @@ handle_missing_value_task = PythonOperator(
     },
     dag=dag,
 )
-
-# validate_data_task = GreatExpectationsOperator(
-#     task_id='validate_data_ge',
-#     data_context_root_dir="/opt/airflow/include/gx", # ที่อยู่ของ Great Expectations context
-#     checkpoint_name="covid_checkpoint", # ชื่อ checkpoint ที่สร้างใน Great Expectations
-#     fail_task_on_validation_failure=True,
-#     do_xcom_push=False,
-#     dag=dag,
-# )
 
 validate_data_task = PythonOperator(
     task_id='validate_data',

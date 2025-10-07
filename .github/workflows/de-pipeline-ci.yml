@@ -42,7 +42,7 @@ jobs:
           from validate_data import validate_data
 
           validate_data(
-              path_to_file='tests/mock_data/covid_sample.csv',
+              path_to_file='tests/mock_data/covid_sample_invalid.csv',
               ge_context_path='include/gx'
           )
           EOF
