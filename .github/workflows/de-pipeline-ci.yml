@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pandas==2.1.1 pytest==7.4.0 great_expectations==1.18.19
+          pip install pandas==2.1.1 pytest==7.4.0 great_expectations==0.18.19
 
       # ขั้นตอนที่สี่คือการรัน unit tests
       - name: Run function tests
