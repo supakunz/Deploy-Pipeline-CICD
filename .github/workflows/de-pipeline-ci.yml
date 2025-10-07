@@ -39,7 +39,6 @@ jobs:
           echo "Listing files in include/gx directory:"
           ls -R include/gx
           
-          # รัน script Python แทนคำสั่ง CLI
           python run_qa.py
 
 
