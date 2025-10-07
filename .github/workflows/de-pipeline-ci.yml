@@ -1,0 +1,40 @@
+name: Data Pipeline CI # ชื่อของ workflow
+
+# ทำงานเมื่อมีการ push หรือ pull request ไปยังสาขา main หรือ dev
+on: 
+  push:
+    branches: [ main, dev ]
+  pull_request:
+
+# jobs กำหนดงานที่ต้องทำใน workflow นี้
+jobs:
+  test: # ชื่องาน
+    runs-on: ubuntu-latest # ใช้ runner ของ GitHub ที่เป็น Ubuntu ล่าสุด
+
+    steps: # ขั้นตอนต่างๆ ที่จะทำในงานนี้
+      # ขั้นตอนแรกคือโหลดโค้ดจาก repository ลงใน runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ขั้นตอนที่สองคือการตั้งค่า Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # ขั้นตอนที่สามคือการติดตั้ง dependencies ที่จำเป็น
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas==2.1.1 pytest==7.4.0 great_expectations==1.18.19
+
+      # ขั้นตอนที่สี่คือการรัน unit tests
+      - name: Run function tests
+        run: pytest tests/ --maxfail=1 --disable-warnings -q
+
+      # ขั้นตอนที่ห้าคือการรัน data QA tests โดยใช้ Great Expectations
+      - name: Run QA tests (Great Expectations)
+        run: |
+          great_expectations checkpoint run covid_checkpoint --v3-api \
+            --data-context-dir include/gx \
+            --batch-request '{"path": "tests/mock_data/covid_sample.csv", "datasource_name": "default_csv"}'
