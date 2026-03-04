@@ -15,7 +15,7 @@ It also includes automated testing and QA in GitHub Actions.
 
 ## ⚙️ Architecture (High Level)
 
-`Raw CSV` → `PostgreSQL` → `Airflow ETL DAG` → `MinIO Bucket (raw/clean)` + `Clean CSV Output` → `Great Expectations QA` → `Notebook / Analytics`
+<img width="1022" height="657" alt="Image" src="https://github.com/user-attachments/assets/3c08e3eb-a34f-4aa8-8716-a562bfc1da42" />
 
 ## 💡 Technology Stack
 
@@ -68,15 +68,11 @@ MinIO is used as an S3-compatible data lake to store pipeline artifacts from bot
 - Raw object path: `covid/raw/covid_19_raw.csv`
 - Curated object path: `covid/output/covid_19_clean.csv`
 
-You can place screenshots below to show successful uploads:
-
-![MinIO Raw Upload](images/minio_raw_upload.png)
-![MinIO Output Upload](images/minio_output_upload.png)
+<img width="1456" height="493" alt="Image" src="https://github.com/user-attachments/assets/f945f460-c5b9-4f10-b6d3-0b73407d2f0f" />
 
 ## 🔄 Airflow ETL Workflow
 
-DAG file: `dags/etl_dag.py`  
-DAG ID: `etl_pipeline`
+<img width="1932" height="446" alt="Image" src="https://github.com/user-attachments/assets/45cfaa68-0a7e-4fa3-96f5-f6879e772420" />
 
 Task sequence:
 1. `start`
