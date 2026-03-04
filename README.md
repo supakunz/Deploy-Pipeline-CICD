@@ -1,6 +1,6 @@
 # 📘 COVID-19 ETL Data Pipeline
 
-> End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, Great Expectations, and GitHub Actions CI.
+> End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, Great Expectations, and GitHub Actions CICD.
 
 ## 🧾 Project Overview
 
@@ -86,7 +86,7 @@ Key checks include:
 - Date/time columns must match expected format
 - `confirmed`, `deaths`, `recovered` must be non-null, integer, and `>= 0`
 
-## 🧪 Testing & CI
+## 🧪 Testing & CICD
 
 CI workflow: `.github/workflows/de-pipeline-ci.yml`
 
