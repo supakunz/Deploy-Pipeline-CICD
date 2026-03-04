@@ -179,4 +179,5 @@ PYTHONPATH=$(pwd)/plugins pytest tests/ -q
 ## 🙋‍♂️ Contact
 
 Developed by **Supakun Thata**  
-GitHub: [SupakunZ](https://github.com/SupakunZ)
+📧 Email: supakunt.thata@gmail.com  
+🔗 GitHub: [SupakunZ](https://github.com/SupakunZ)
