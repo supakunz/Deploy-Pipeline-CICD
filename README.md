@@ -1,4 +1,4 @@
-# 📘 COVID-19 ETL Data Pipeline (Airflow + PostgreSQL + Great Expectations)
+# 📘 COVID-19 ETL Data Pipeline
 
 > End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, Great Expectations, and GitHub Actions CI.
 
