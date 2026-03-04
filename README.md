@@ -60,6 +60,19 @@ Defined in `docker-compose.yml`:
 - Loader script: `load-csv/load_csv.py`
 - Target source table: `public.covid_data` (PostgreSQL)
 
+## 💾 MinIO Data Lake
+
+MinIO is used as an S3-compatible data lake to store pipeline artifacts from both extraction and load stages.
+
+- Bucket: `data-lake`
+- Raw object path: `covid/raw/covid_19_raw.csv`
+- Curated object path: `covid/output/covid_19_clean.csv`
+
+You can place screenshots below to show successful uploads:
+
+![MinIO Raw Upload](images/minio_raw_upload.png)
+![MinIO Output Upload](images/minio_output_upload.png)
+
 ## 🔄 Airflow ETL Workflow
 
 DAG file: `dags/etl_dag.py`  
