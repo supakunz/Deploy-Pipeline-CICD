@@ -15,7 +15,7 @@ It also includes automated testing and QA in GitHub Actions.
 
 ## ⚙️ Architecture (High Level)
 
-<img width="1022" height="657" alt="Image" src="https://github.com/user-attachments/assets/3c08e3eb-a34f-4aa8-8716-a562bfc1da42" />
+<img width="1292" height="658" alt="Image" src="https://github.com/user-attachments/assets/6040b720-e4f4-4587-aa69-8e36d7b3569d" />
 
 ## 💡 Technology Stack
 
