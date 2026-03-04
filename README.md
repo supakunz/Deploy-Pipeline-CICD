@@ -1,6 +1,6 @@
-# 📘 COVID-19 ETL Data Pipeline (Airflow + PostgreSQL + Great Expectations)
+# 📘 COVID-19 ETL Data Pipeline (Airflow + PostgreSQL + MinIO + Great Expectations)
 
-> End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, Great Expectations, and GitHub Actions CI.
+> End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, MinIO (S3), Great Expectations, and GitHub Actions CI.
 
 ## 🧾 Project Overview
 
@@ -15,7 +15,7 @@ It also includes automated testing and QA in GitHub Actions.
 
 ## ⚙️ Architecture (High Level)
 
-`Raw CSV` → `PostgreSQL` → `Airflow ETL DAG` → `Clean CSV Output` → `Great Expectations QA` → `Notebook / Analytics`
+`Raw CSV` → `PostgreSQL` → `Airflow ETL DAG` → `MinIO Bucket (raw/clean)` + `Clean CSV Output` → `Great Expectations QA` → `Notebook / Analytics`
 
 ## 💡 Technology Stack
 
@@ -29,6 +29,7 @@ It also includes automated testing and QA in GitHub Actions.
 
 **Data Storage:**
 - PostgreSQL
+- MinIO (S3-compatible Object Storage)
 - CSV (raw/output)
 
 **Data Quality:**
@@ -45,6 +46,8 @@ It also includes automated testing and QA in GitHub Actions.
 
 Defined in `docker-compose.yml`:
 - `postgres` : metadata DB + raw source table (`covid_data`)
+- `minio` : object storage for raw/processed pipeline outputs
+- `createbuckets` : bootstrap bucket creation (`data-lake`)
 - `load-csv` : one-time loader to ingest CSV into PostgreSQL
 - `airflow-init` : initialize Airflow DB and create admin user
 - `airflow-scheduler` : run DAG scheduling
@@ -65,7 +68,7 @@ DAG ID: `etl_pipeline`
 Task sequence:
 1. `start`
 2. `load_data`  
-   Read data from PostgreSQL and write to `data/raw/covid_19_raw.csv`
+   Read data from PostgreSQL, write to `data/raw/covid_19_raw.csv`, then upload raw file to MinIO (`data-lake/covid/raw/covid_19_raw.csv`)
 3. `clean_data`  
    Standardize datetime, normalize column names (snake_case), cast data types
 4. `handle_missing_value`  
@@ -73,7 +76,7 @@ Task sequence:
 5. `validate_data`  
    Run Great Expectations checkpoint (`include/gx/checkpoints/covid_checkpoint.yml`)
 6. `load_to_warehouse`  
-   Export final cleaned dataset to output CSV (`data/output/covid_19_clean.csv`)
+   Export final cleaned dataset to output CSV (`data/output/covid_19_clean.csv`) and upload to MinIO (`data-lake/covid/output/covid_19_clean.csv`)
 7. `end`
 
 ## ✅ Data Quality Rules (Great Expectations)
@@ -114,6 +117,8 @@ docker compose up -d --build
   - Username: `admin`
   - Password: `admin`
 - Jupyter Lab: `http://localhost:8888`
+- MinIO API: `http://localhost:9000`
+- MinIO Console: `http://localhost:9001` (user/password: `minioadmin` / `minioadmin`)
 - PostgreSQL: `localhost:5432`
 
 ### 4. Trigger DAG
@@ -161,4 +166,3 @@ PYTHONPATH=$(pwd)/plugins pytest tests/ -q
 
 Developed by **Supakun Thata**  
 GitHub: [SupakunZ](https://github.com/SupakunZ)
-

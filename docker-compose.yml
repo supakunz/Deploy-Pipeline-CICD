@@ -12,6 +12,34 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        until mc alias set local http://minio:9000 minioadmin minioadmin; do
+          echo "Waiting for MinIO..."
+          sleep 2
+        done
+        mc mb -p local/data-lake || true
+        mc anonymous set none local/data-lake || true
+        echo "Bucket 'data-lake' is ready."
+
   load-csv:
     build: ./load-csv
     depends_on:
@@ -46,6 +74,13 @@ services:
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=YOUR_GENERATED_FERNET_KEY_HERE
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_BUCKET=data-lake
+      - MINIO_RAW_OBJECT_KEY=covid/raw/covid_19_raw.csv
+      - MINIO_OBJECT_KEY=covid/output/covid_19_clean.csv
+      - MINIO_USE_SSL=false
     volumes:
       - ./dags:/opt/airflow/dags
       - ./data:/opt/airflow/data
@@ -62,12 +97,21 @@ services:
     depends_on:
       - postgres
       - airflow-init
+      - minio
+      - createbuckets
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY=YOUR_GENERATED_FERNET_KEY_HERE
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_BUCKET=data-lake
+      - MINIO_RAW_OBJECT_KEY=covid/raw/covid_19_raw.csv
+      - MINIO_OBJECT_KEY=covid/output/covid_19_clean.csv
+      - MINIO_USE_SSL=false
     volumes:
       - ./dags:/opt/airflow/dags
       - ./data:/opt/airflow/data
@@ -83,6 +127,8 @@ services:
     depends_on:
       - postgres
       - airflow-init
+      - minio
+      - createbuckets
     ports:
       - "8080:8080"
     environment:
@@ -91,6 +137,13 @@ services:
       - AIRFLOW__CORE__FERNET_KEY=YOUR_GENERATED_FERNET_KEY_HERE
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_BUCKET=data-lake
+      - MINIO_RAW_OBJECT_KEY=covid/raw/covid_19_raw.csv
+      - MINIO_OBJECT_KEY=covid/output/covid_19_clean.csv
+      - MINIO_USE_SSL=false
     volumes:
       - ./dags:/opt/airflow/dags
       - ./data:/opt/airflow/data
@@ -119,6 +172,7 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   default:

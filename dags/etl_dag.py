@@ -75,7 +75,7 @@ validate_data_task = PythonOperator(
 )
 
 load_to_warehouse_task = PythonOperator(
-    task_id='load_to_warehouse',
+    task_id='load_to_warehouse_simulated',
     python_callable=load_to_warehouse,
     op_kwargs={'input_path': '/opt/airflow/data/output/covid_19_clean.csv',
                'output_path': '/opt/airflow/data/output/covid_19_clean.csv'},
