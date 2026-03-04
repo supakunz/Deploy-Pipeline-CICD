@@ -1,4 +1,4 @@
-# 📘 COVID-19 ETL Data Pipeline (Airflow + PostgreSQL + Great Expectations)
+# 📘 COVID-19 ETL Data Pipeline
 
 > End-to-end data engineering pipeline with Docker, Apache Airflow, PostgreSQL, Great Expectations, and GitHub Actions CI.
 
@@ -78,6 +78,11 @@ Task sequence:
 6. `load_to_warehouse`  
    Export final cleaned dataset to output CSV (`data/output/covid_19_clean.csv`) and upload to MinIO (`data-lake/covid/output/covid_19_clean.csv`)
 7. `end`
+
+## 🏬 Warehouse Load Note
+
+- Current pipeline simulates warehouse loading via CSV/MinIO.
+- BigQuery is the target warehouse and is planned as the next integration step.
 
 ## ✅ Data Quality Rules (Great Expectations)
 
